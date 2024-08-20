@@ -13,6 +13,7 @@ std::string FileOut;
 //}
 
 
+	
 std::vector<std::string> SplitString(const std::string& Line, char Delimiter) {	//possible unnecessary, Delimiter can be removed but it seems like both strings are put into once vec index
 	std::vector<std::string> Tokens;
 	std::string Token;
@@ -25,6 +26,7 @@ std::vector<std::string> SplitString(const std::string& Line, char Delimiter) {	
 
 
 int PopulateMap(std::filesystem::path ReadFrom, std::map<std::string, std::string>& OldNew) {
+	std::cout << "PopulateMap()" << std::endl;
 	std::ifstream FileToRead(ReadFrom);
 
 
@@ -42,9 +44,9 @@ int PopulateMap(std::filesystem::path ReadFrom, std::map<std::string, std::strin
 
 		std::vector<std::string> Value = SplitString(Line, ','); // Assuming comma is the delimiter
 
-		for (const auto& Token : Value) {
-			std::cout << "\"" << Token << "\" ";
-		}
+//		for (const auto& Token : Value) {
+//			std::cout << "\"" << Token << "\" ";
+//		}
 		if (Value.size() == 2) {
 			OldNew[Value[0]] = Value[1];
 		}
@@ -89,10 +91,6 @@ int PopulateMap(std::filesystem::path ReadFrom, std::map<std::string, std::strin
 	//
 	//	OldNew[Key] = Value;
 	//}
-	//
-
-
-
 }
 
 
@@ -102,16 +100,76 @@ int Search() {
 	return 0;
 }
 
-int Fetch() {	//fetch all files in directory,
+
+
+int Rename(std::vector<std::string>& ToRename, std::map<std::string, std::string> Names) {	//Put all to-be-renamed names in vector, match them with first value of Names map, 
+	std::cout << "Rename()" << std::endl;
+	std::cout << "ToRename size: " << ToRename.size() << std::endl;
+	for (auto a : ToRename) {	//find key in Names to match a
+		if (Names.find(a) == Names.end()) {
+			//if a not found
+			//deal with errors, either no matching key or no value
+
+		}
+		else {
+			
+		}
+	}
+
+	for (int i = 0; i < ToRename.size(); i++) {
+		if (Names.find(ToRename[i]) == Names.end()) {
+			std::cout << "No key found" << std::endl;
+		}
+		else {
+			std::cout << ToRename[i] << " Renamed to ";
+			ToRename[i] = Names[ToRename[i]]; 
+			std::cout << ToRename[i] << std::endl;
+		}
+	}
+
+
 
 	return 0;
 }
 
-int Rename(std::vector<std::string> FilesToRename, std::map<std::string, std::string> Names) {	//Put all to-be-renamed names in vector, match them with first value of Names map, 
+
+int ReWrite(std::vector<std::string> NewNames, std::filesystem::path Dir) {
+
+	for (auto i : NewNames) {
+		//append i to Dir
+		Dir += "\\" + i;
+		std::cout << "New file name: " << Dir << std::endl;
+		std::filesystem::rename(std::string(i), std::string());
+	}
+
+}
+
+int FetchNames(std::string Path, std::vector<std::string>& Names) {	//fetch all files in directory,
+//while not null, fetch file name
+	std::cout << "FetchNames()" << std::endl;
+	for (auto& Entry : std::filesystem::directory_iterator(Path)) {	//populate vector of file names
+		Names.push_back(Entry.path().filename().string());
+	}
+	for (auto i : Names) {
+		std::cout << "Added: " << i << std::endl;
+	}
+	//rename all files to new names
+	//Rename(Names, UpdatedNames);
+
+
+	return 1;
+}
+
+std::filesystem::path NewDir(std::string OldDir) {
+	std::filesystem::path New = OldDir + "NEW";
+
+	//populate folder map
 
 
 
 
 
-	return 0;
+
+
+
 }
