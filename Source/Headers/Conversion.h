@@ -12,7 +12,6 @@ std::string FileOut;
 //std::string UpdateName() {
 //}
 
-
 	
 std::vector<std::string> SplitString(const std::string& Line, char Delimiter) {	//possible unnecessary, Delimiter can be removed but it seems like both strings are put into once vec index
 	std::vector<std::string> Tokens;
@@ -160,16 +159,46 @@ int FetchNames(std::string Path, std::vector<std::string>& Names) {	//fetch all 
 	return 1;
 }
 
-std::filesystem::path NewDir(std::string OldDir) {
-	std::filesystem::path New = OldDir + "NEW";
-
+std::filesystem::path CreateDir(std::string OldDir) {
+	std::filesystem::path NewDir = OldDir + "NEW";
+	std::map<std::string, std::string> FolderMap = {};
+	std::string assets = "assets";
+	std::string minecraft = "minecraft";
+	std::vector<std::string> minecraftFolders = { "textures", "texts", "lang", "optifine" };
+	std::vector<std::string> texturesFolders = { "block", "font", "gui", "item", "misc", "models", "particle", "entity", "environment", "map", "mob_effects", "painting" };
+	
 	//populate folder map
+	std::filesystem::path assetsPath = NewDir / assets;
+	if (!std::filesystem::exists(assetsPath)) {
+		std::filesystem::create_directory(assetsPath);
+	}
+	
+	std::filesystem::path minecraftPath = NewDir / minecraft;
+	if (std::filesystem::exists(minecraftPath)) {
+		std::filesystem::create_directory(minecraftPath);
+	}
+
+	for (auto i : minecraftFolders) {
+		std::filesystem::path NewFolderPath = minecraftPath / i;
+		if (!std::filesystem::exists(NewFolderPath)) {
+			std::filesystem::create_directory(NewFolderPath);
+			std::cout << "Created folder: " << NewFolderPath << std::endl;
+		}
+		else {
+			std::cout << "Folder already exists: " << NewFolderPath << std::endl;
+		}
+	}
 
 
-
-
-
-
-
-
+	for (auto i : texturesFolders) {
+		std::filesystem::path NewFolderPath = NewDir / i;
+		if (!std::filesystem::exists(NewFolderPath)) {
+			std::filesystem::create_directory(NewFolderPath);
+			std::cout << "Created folder: " << NewFolderPath << std::endl;
+		}
+		else {
+			std::cout << "Folder already exists: " << NewFolderPath << std::endl;
+		}
+	}
+	return NewDir;
 }
