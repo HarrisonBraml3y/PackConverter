@@ -24,7 +24,7 @@ std::vector<std::string> SplitString(const std::string& Line, char Delimiter) {	
 }
 
 
-int PopulateMap(std::filesystem::path ReadFrom, std::map<std::string, std::string>& OldNew) {
+int PopulateMap(std::filesystem::path ReadFrom, std::map<std::string, std::string>& OldNew) {	//Map old & new names of folder contents, read from pre compiled excel sheet
 	std::cout << "PopulateMap()" << std::endl;
 	std::ifstream FileToRead(ReadFrom);
 
@@ -100,20 +100,11 @@ int Search() {
 }
 
 
-
+//Store old path and store new path, in order to move the newly-named files to new dir, change old path to new path, which involves excluding the file name which has been changed, so that only the file path is left to be changed
 int Rename(std::vector<std::string>& ToRename, std::map<std::string, std::string> Names) {	//Put all to-be-renamed names in vector, match them with first value of Names map, 
-	std::cout << "Rename()" << std::endl;
+	std::cout << "Rename()" << std::endl;													//Afterwards, rename the full file path to the new file path
 	std::cout << "ToRename size: " << ToRename.size() << std::endl;
-	for (auto a : ToRename) {	//find key in Names to match a
-		if (Names.find(a) == Names.end()) {
-			//if a not found
-			//deal with errors, either no matching key or no value
-
-		}
-		else {
-			
-		}
-	}
+	std::vector<std::string> NewPaths;
 
 	for (int i = 0; i < ToRename.size(); i++) {
 		if (Names.find(ToRename[i]) == Names.end()) {
@@ -125,80 +116,110 @@ int Rename(std::vector<std::string>& ToRename, std::map<std::string, std::string
 			std::cout << ToRename[i] << std::endl;
 		}
 	}
-
-
-
+	
+//also remember to change the file directory of the original file to the newly created directory
+//, after it has been renamed
 	return 0;
 }
 
-
-int ReWrite(std::vector<std::string> NewNames, std::filesystem::path Dir) {
-
-	for (auto i : NewNames) {
-		//append i to Dir
-		Dir += "\\" + i;
-		std::cout << "New file name: " << Dir << std::endl;
-		std::filesystem::rename(std::string(i), std::string());
-	}
-
-}
-
-int FetchNames(std::string Path, std::vector<std::string>& Names) {	//fetch all files in directory,
-//while not null, fetch file name
+int FetchNames(std::string Path, std::vector<std::string>& Paths) {	//fetch all files in directory,
 	std::cout << "FetchNames()" << std::endl;
-	for (auto& Entry : std::filesystem::directory_iterator(Path)) {	//populate vector of file names
-		Names.push_back(Entry.path().filename().string());
+	for (auto& Entry : std::filesystem::directory_iterator(Path)) {	
+		Paths.push_back(Entry.path().string());
+		//Names.push_back(Entry.path().filename().string());
 	}
-	for (auto i : Names) {
+	for (auto i : Paths) {
 		std::cout << "Added: " << i << std::endl;
 	}
-	//rename all files to new names
-	//Rename(Names, UpdatedNames);
-
 
 	return 1;
 }
 
-std::filesystem::path CreateDir(std::string OldDir) {
-	std::filesystem::path NewDir = OldDir + "NEW";
-	std::map<std::string, std::string> FolderMap = {};
-	std::string assets = "assets";
-	std::string minecraft = "minecraft";
-	std::vector<std::string> minecraftFolders = { "textures", "texts", "lang", "optifine" };
-	std::vector<std::string> texturesFolders = { "block", "font", "gui", "item", "misc", "models", "particle", "entity", "environment", "map", "mob_effects", "painting" };
-	
-	//populate folder map
-	std::filesystem::path assetsPath = NewDir / assets;
-	if (!std::filesystem::exists(assetsPath)) {
-		std::filesystem::create_directory(assetsPath);
+void MoveFiles(std::filesystem::path OldDir, std::filesystem::path NewDir, std::vector<std::string>& Names) {	//std::string OldDir needs to be a string for rename
+	std::string Temp;
+	std::filesystem::path NewPath;
+	for (auto& Entry : std::filesystem::directory_iterator(OldDir)) {
+		Temp = Entry.path().string();
+		NewPath = std::filesystem::path(NewDir) / Temp;
+		std::filesystem::rename(OldDir, NewPath);
+		std::cout << OldDir << " Changed to: " << NewPath << std::endl;
+		Names.push_back(Entry.path().filename().string());
 	}
+
+	return;
+}
+
+std::filesystem::path CreateDir(std::string OldDir, std::string NewDirectory) {
+	std::filesystem::path NewDir = OldDir + "NEW";
+	std::map<std::string, std::string> FolderMap;
+	std::string assetsDir = "assets";
+	std::string minecraftDir = "minecraft";
+	std::vector<std::string> minecraftSubDirs = { "textures", "texts", "lang", "optifine" };
+	std::vector<std::string> texturesSubDirs = { "block", "font", "gui", "item", "misc", "models", "particle", "entity", "environment", "map", "mob_effects", "painting" };
 	
-	std::filesystem::path minecraftPath = NewDir / minecraft;
-	if (std::filesystem::exists(minecraftPath)) {
+	if (!std::filesystem::exists(NewDir)) {	//NewDir hasn't been created yet, thus NewDir/assets cannot exist
+		std::filesystem::create_directory(NewDir);
+	}
+
+	//populate folder map
+	std::cout << NewDir << std::endl;
+	std::filesystem::path assetsPath = NewDir / assetsDir;
+	std::cout << assetsPath << std::endl;
+	if (!std::filesystem::exists(assetsPath)) {	//NewDir hasn't been created yet, thus NewDir/assets cannot exist
+		try {
+			std::filesystem::create_directory(assetsPath);
+		}
+		catch (const std::filesystem::filesystem_error& e) {
+			std::cerr << "Filesystem error: " << e.what() << std::endl;
+		}
+	}
+
+	
+	std::filesystem::path minecraftPath = assetsPath / minecraftDir;
+	if (!std::filesystem::exists(minecraftPath)) {
 		std::filesystem::create_directory(minecraftPath);
 	}
 
-	for (auto i : minecraftFolders) {
+	for (auto i : minecraftSubDirs) {
 		std::filesystem::path NewFolderPath = minecraftPath / i;
 		if (!std::filesystem::exists(NewFolderPath)) {
 			std::filesystem::create_directory(NewFolderPath);
 			std::cout << "Created folder: " << NewFolderPath << std::endl;
+
+			if (i == "textures") {
+				for (auto i : texturesSubDirs) {	//when complete, go back to minecraftSubDirs loop
+					std::filesystem::path SubDirs = NewFolderPath / i;
+					if (!std::filesystem::exists(SubDirs)) {
+						std::filesystem::create_directory(SubDirs);
+						std::cout << "Created folder: " << SubDirs << std::endl;
+					}
+					else {
+						std::cout << "Folder already exists: " << SubDirs << std::endl;
+					}
+				}
+			}
+
 		}
 		else {
-			std::cout << "Folder already exists: " << NewFolderPath << std::endl;
+			std::cout << "Folder already exists: "  << NewFolderPath << std::endl;
 		}
 	}
 
 
-	for (auto i : texturesFolders) {
-		std::filesystem::path NewFolderPath = NewDir / i;
-		if (!std::filesystem::exists(NewFolderPath)) {
-			std::filesystem::create_directory(NewFolderPath);
-			std::cout << "Created folder: " << NewFolderPath << std::endl;
-		}
-		else {
-			std::cout << "Folder already exists: " << NewFolderPath << std::endl;
-		}
-	}
+
+
 	return NewDir;
 }
+
+//void PopulateDirs(std::filesystem::path, std::vector<std::string> Names){		//copy files from initial folder, with newly-updated names and 
+//	if (Names.size() <= 0) {
+//		return;
+//	}
+//	
+//	for (auto i : Names) {
+//		std::filesystem::create_directories		//may not even be a directory, as it isn't a folder. Try 
+//	}
+//
+//
+//	return;
+//}
