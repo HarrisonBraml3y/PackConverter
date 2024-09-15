@@ -136,13 +136,16 @@ int FetchNames(std::string Path, std::vector<std::string>& Paths) {	//fetch all 
 }
 
 void MoveFiles(std::filesystem::path OldDir, std::filesystem::path NewDir, std::vector<std::string>& Names) {	//std::string OldDir needs to be a string for rename
-	std::string Temp;
+	std::string OldPath;
 	std::filesystem::path NewPath;
 	for (auto& Entry : std::filesystem::directory_iterator(OldDir)) {
-		Temp = Entry.path().string();
-		NewPath = std::filesystem::path(NewDir) / Temp;
-		std::filesystem::rename(OldDir, NewPath);
-		std::cout << OldDir << " Changed to: " << NewPath << std::endl;
+		OldPath = Entry.path().string();
+		std::string Temp = OldPath.substr(OldPath.find_last_of("/\\") + 1);
+		std::cout << "Temp: " << Temp << std::endl;	
+		NewPath = NewDir / Temp;	//wrong, should only be the last word of temp
+		std::cout << "NewPath: " << NewPath << std::endl;
+		std::filesystem::rename(OldPath, NewPath);		
+		std::cout << OldPath << " Changed to: " << NewPath << std::endl;
 		Names.push_back(Entry.path().filename().string());
 	}
 
