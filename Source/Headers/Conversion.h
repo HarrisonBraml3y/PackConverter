@@ -6,6 +6,10 @@
 #include <map>
 
 
+struct CurrentDir {
+	//hold current directory parameters such as path etc. 
+};
+
 std::string FileIn;
 std::string FileOut;
 
@@ -43,9 +47,6 @@ int PopulateMap(std::filesystem::path ReadFrom, std::map<std::string, std::strin
 
 		std::vector<std::string> Value = SplitString(Line, ','); // Assuming comma is the delimiter
 
-//		for (const auto& Token : Value) {
-//			std::cout << "\"" << Token << "\" ";
-//		}
 		if (Value.size() == 2) {
 			OldNew[Value[0]] = Value[1];
 		}
@@ -55,10 +56,6 @@ int PopulateMap(std::filesystem::path ReadFrom, std::map<std::string, std::strin
 		}
 
 	}
-
-
-
-
 
 	//while (std::getline(FileToRead, Line)) {
 	//	size_t DelimiterPos = Line.find('=');
@@ -72,24 +69,13 @@ int PopulateMap(std::filesystem::path ReadFrom, std::map<std::string, std::strin
 	//		return 1;
 	//	}
 
-
 	FileToRead.close();
 
 	for (auto i : OldNew) {
 		std::cout << i.first << " " << i.second << std::endl;
 	}
 
-
-
 	return 0;
-
-	//	if (!std::getline(FileToRead, Key, ','))
-	//		
-	//
-	//	if (!std::getline(FileToRead, Value, ','))
-	//
-	//	OldNew[Key] = Value;
-	//}
 }
 
 
@@ -104,7 +90,6 @@ int Search() {
 int Rename(std::vector<std::string>& ToRename, std::map<std::string, std::string> Names) {	//Put all to-be-renamed names in vector, match them with first value of Names map, 
 	std::cout << "Rename()" << std::endl;													//Afterwards, rename the full file path to the new file path
 	std::cout << "ToRename size: " << ToRename.size() << std::endl;
-	std::vector<std::string> NewPaths;
 
 	for (int i = 0; i < ToRename.size(); i++) {
 		if (Names.find(ToRename[i]) == Names.end()) {
@@ -121,6 +106,25 @@ int Rename(std::vector<std::string>& ToRename, std::map<std::string, std::string
 //, after it has been renamed
 	return 0;
 }
+int RenameSingle(std::string& ToRename, std::map<std::string, std::string> Names) {	//Put all to-be-renamed names in vector, match them with first value of Names map, 
+	std::cout << "Rename()" << std::endl;													//Afterwards, rename the full file path to the new file path
+	std::cout << "ToRename size: " << ToRename.size() << std::endl;
+
+
+		if (Names.find(ToRename) == Names.end()) {
+			std::cout << "No key found" << std::endl;
+		}
+		else {
+			std::cout << ToRename << " Renamed to ";
+			ToRename = Names[ToRename];
+			std::cout << ToRename << std::endl;
+		}
+	
+
+	//also remember to change the file directory of the original file to the newly created directory
+	//, after it has been renamed
+	return 0;
+}
 
 int FetchNames(std::string Path, std::vector<std::string>& Paths) {	//fetch all files in directory,
 	std::cout << "FetchNames()" << std::endl;
@@ -135,24 +139,48 @@ int FetchNames(std::string Path, std::vector<std::string>& Paths) {	//fetch all 
 	return 1;
 }
 
-void MoveFiles(std::filesystem::path OldDir, std::filesystem::path NewDir, std::vector<std::string>& Names) {	//std::string OldDir needs to be a string for rename
+void IterateFolder(std::filesystem::path Folder, std::filesystem::path NewDir, std::vector<std::string> Names, std::map<std::string, std::string> NamesMap) {
+	
+	//MoveFiles(Folder, NewDir, Names, NamesMap); 
+
+	for (auto i : std::filesystem::directory_iterator(Folder)) {
+		if (!i.is_directory()) {
+			
+		}
+		else {
+			std::cout << i << std::endl;
+			//std::filesystem::path Entry = i;
+			//MoveFiles(Entry, NewDir, Names, NamesMap);
+			IterateFolder(i, NewDir, Names, NamesMap);
+		}
+	}
+}
+
+void MoveFiles(std::filesystem::path OldDir, std::filesystem::path NewDir, std::vector<std::string>& Names, std::map<std::string, std::string> NamesMap){	//call this function for each directory in the folder
 	std::string OldPath;
 	std::filesystem::path NewPath;
+	std::string TempPath;
+
+	
+
 	for (auto& Entry : std::filesystem::directory_iterator(OldDir)) {
 		OldPath = Entry.path().string();
 		std::string Temp = OldPath.substr(OldPath.find_last_of("/\\") + 1);
 		std::cout << "Temp: " << Temp << std::endl;	
-		NewPath = NewDir / Temp;	//wrong, should only be the last word of temp
-		std::cout << "NewPath: " << NewPath << std::endl;
-		std::filesystem::rename(OldPath, NewPath);		
-		std::cout << OldPath << " Changed to: " << NewPath << std::endl;
+		RenameSingle(Temp, NamesMap);
+		NewPath = NewDir / Temp;
 		Names.push_back(Entry.path().filename().string());
+
+		std::cout << "NewPath: " << NewPath << std::endl;
+		std::filesystem::rename(OldPath, NewPath);
+		std::cout << OldPath << " Changed to: " << NewPath << std::endl;
 	}
+	//reconstruct path with renamed names
 
 	return;
 }
 
-std::filesystem::path CreateDir(std::string OldDir, std::string NewDirectory) {
+std::filesystem::path CreateDir(std::string OldDir) {
 	std::filesystem::path NewDir = OldDir + "NEW";
 	std::map<std::string, std::string> FolderMap;
 	std::string assetsDir = "assets";
@@ -226,3 +254,8 @@ std::filesystem::path CreateDir(std::string OldDir, std::string NewDirectory) {
 //
 //	return;
 //}
+
+
+
+
+//SpriteSheetSplitter

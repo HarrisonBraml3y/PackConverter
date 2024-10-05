@@ -6,14 +6,19 @@
 
 
 
-int main() {
+int main(int argc, char* argv[]) {		//when complete change to int main(int argc, char *argv[]) for providing folder names in command line
 
 	std::string OldPath;
 	std::string NewPath;
+	OldPath = "C:\\Users\\harri\\Desktop\\Eum x Faith Mashup";
+	NewPath = OldPath + "NEW";
+
 	std::map<std::string, std::string> BlocksMap;
 	std::map<std::string, std::string> ItemsMap;
+	std::map<std::string, std::string> NewMap;
 
 	std::filesystem::path BlocksSheetPath = "C:\\Users\\harri\\Desktop\\BlocksSheet.csv";
+	std::filesystem::path ItemsSheetPath = "C:\\Users\\harri\\Desktop\\ItemsSheet.csv";
 	//std::ifstream BlocksSheet = "C:\\Users\\harri\\Desktop\\BlocksMap";
 	//BlocksSheet.open("C:\\Users\\harri\\Desktop\\BlocksMap");
 
@@ -21,18 +26,34 @@ int main() {
 	std::string OldDir = "C:\\Users\\harri\\Desktop\\Eum x Faith Mashup";
 	std::string NewDir;
 
-
-	//CreateDir("C:\\Users\\harri\\Desktop\\TestPack");
-
-	OldPath = "C:\\Users\\harri\\Desktop\\Eum x Faith Mashup";
-	NewPath = OldPath + "NEW";
-
-	PopulateMap(BlocksSheetPath, BlocksMap);
+	std::filesystem::directory_iterator DirIterator;
 
 	
-	MoveFiles("C:\\Users\\harri\\Desktop\\Eum x Faith Mashup\\assets\\minecraft\\textures\\blocks", "C:\\Users\\harri\\Desktop\\TestPackNEW\\assets\\minecraft\\textures\\block", ToRename);
+	CreateDir(argv[1]);
+
+
+	//Loop through main subdirectories
+	PopulateMap(BlocksSheetPath, NewMap);	//figure out how to do this efficiently, re-using the same map but identifying which sheet to pull data from
+
+
+//	for (auto i : std::filesystem::directory_iterator("C:\\Users\\harri\\Desktop\\Eum x Faith Mashup")) {
+//		if (!i.is_directory()) {
+//
+//		}
+//		else {
+//			std::cout << "123" << std::endl;
+//			//std::filesystem::path Entry = i;
+//			//MoveFiles(Entry, NewDir, Names, NamesMap);
+//			IterateFolder(i, NewDir, Names, NamesMap);
+//		}
+//	}
+
+
+	
+	IterateFolder("C:\\Users\\harri\\Desktop\\Eum x Faith Mashup\\assets", "C:\\Users\\harri\\Desktop\\TestPackNEW", ToRename, NewMap);
+	//MoveFiles("C:\\Users\\harri\\Desktop\\Eum x Faith Mashup\\assets\\minecraft\\textures\\blocks", "C:\\Users\\harri\\Desktop\\TestPackNEW\\assets\\minecraft\\textures\\block", ToRename, BlocksMap);
 	//FetchNames("C:\\Users\\harri\\Desktop\\Eum x Faith Mashup\\assets\\minecraft\\textures\\blocks", ToRename);
-	Rename(ToRename, BlocksMap);
+	//Rename(ToRename, BlocksMap);
 
 
 	
@@ -40,14 +61,4 @@ int main() {
 	return 0;
 }
 
-
-//Have pre-compiled list of old & new names in excel sheet, 
-//Take in old-version folder, populate vector for old names from this folder
-//Rename all vector indices from map of both old & new names
-//Insert new names into new folder created by CreateDir()... Either move the files across to the new dir first then rename them, or rename them before they reach the new dir then move them
-
-//for each file directory e.g. blocks, items, particles etc. temporarily save the directory path,
-//"C:\\Users\\harri\\Desktop\\Eum x Faith Mashup\\assets\\minecraft\\textures\\blocks"
-//changing the file path to the updated file path of 
-//"C:\\Users\\harri\\Desktop\\Eum x Faith MashupNEW\\assets\\minecraft\\textures\\block"
-//this should be done in the 
+//try run the main functions in a loop (populate map, iterate folders etc.)
