@@ -8,10 +8,7 @@
 
 int main(int argc, char* argv[]) {		//when complete change to int main(int argc, char *argv[]) for providing folder names in command line
 
-	std::string OldPath;
-	std::string NewPath;
-	OldPath = "C:\\Users\\harri\\Desktop\\Eum x Faith Mashup";
-	NewPath = OldPath + "NEW";
+
 
 	std::map<std::string, std::string> BlocksMap;
 	std::map<std::string, std::string> ItemsMap;
@@ -23,20 +20,21 @@ int main(int argc, char* argv[]) {		//when complete change to int main(int argc,
 	//BlocksSheet.open("C:\\Users\\harri\\Desktop\\BlocksMap");
 
 	std::vector<std::string> ToRename;
-	std::string OldDir = "C:\\Users\\harri\\Desktop\\Eum x Faith Mashup";
-	std::string NewDir;
+	std::string OldDir = "C:\\Users\\harri\\Desktop\\Eum x Faith Mashup - Copy";
+	std::filesystem::path NewDir;
 
 	std::filesystem::directory_iterator DirIterator;
 
 	
-	CreateDir(argv[1]);
+	NewDir = CreateDir(argv[1]);
 
 
 	//Loop through main subdirectories
 	PopulateMap(BlocksSheetPath, NewMap);	//figure out how to do this efficiently, re-using the same map but identifying which sheet to pull data from
 
+	IterateFolder(argv[1], NewDir, ToRename, NewMap);
 
-//	for (auto i : std::filesystem::directory_iterator("C:\\Users\\harri\\Desktop\\Eum x Faith Mashup")) {
+//	for (auto i : std::filesystem::directory_iterator(argv[1])) {
 //		if (!i.is_directory()) {
 //
 //		}
@@ -44,13 +42,13 @@ int main(int argc, char* argv[]) {		//when complete change to int main(int argc,
 //			std::cout << "123" << std::endl;
 //			//std::filesystem::path Entry = i;
 //			//MoveFiles(Entry, NewDir, Names, NamesMap);
-//			IterateFolder(i, NewDir, Names, NamesMap);
+//			IterateFolder(i, NewDir, ToRename, NewMap);
 //		}
 //	}
 
 
 	
-	IterateFolder("C:\\Users\\harri\\Desktop\\Eum x Faith Mashup\\assets", "C:\\Users\\harri\\Desktop\\TestPackNEW", ToRename, NewMap);
+	//IterateFolder("C:\\Users\\harri\\Desktop\\Eum x Faith Mashup\\assets", "C:\\Users\\harri\\Desktop\\TestPackNEW", ToRename, NewMap);
 	//MoveFiles("C:\\Users\\harri\\Desktop\\Eum x Faith Mashup\\assets\\minecraft\\textures\\blocks", "C:\\Users\\harri\\Desktop\\TestPackNEW\\assets\\minecraft\\textures\\block", ToRename, BlocksMap);
 	//FetchNames("C:\\Users\\harri\\Desktop\\Eum x Faith Mashup\\assets\\minecraft\\textures\\blocks", ToRename);
 	//Rename(ToRename, BlocksMap);

@@ -1,2 +1,2 @@
 ﻿  Source.cpp
-  PackConverter.vcxproj -> C:\Users\harri\source\Programs\PackConverter\x64\Debug\PackConverter.exe
+C:\Users\harri\source\Programs\PackConverter\Source\Headers\Conversion.h(144,2): error C3861: 'MoveFiles': identifier not found

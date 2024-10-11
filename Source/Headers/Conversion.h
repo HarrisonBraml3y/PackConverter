@@ -141,7 +141,7 @@ int FetchNames(std::string Path, std::vector<std::string>& Paths) {	//fetch all 
 
 void IterateFolder(std::filesystem::path Folder, std::filesystem::path NewDir, std::vector<std::string> Names, std::map<std::string, std::string> NamesMap) {
 	
-	//MoveFiles(Folder, NewDir, Names, NamesMap); 
+	MoveFiles(Folder, NewDir, Names, NamesMap); 
 
 	for (auto i : std::filesystem::directory_iterator(Folder)) {
 		if (!i.is_directory()) {
