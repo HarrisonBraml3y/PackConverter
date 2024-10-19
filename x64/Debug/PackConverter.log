@@ -1,2 +1,2 @@
 ﻿  Source.cpp
-C:\Users\harri\source\Programs\PackConverter\Source\Headers\Conversion.h(144,2): error C3861: 'MoveFiles': identifier not found
+C:\Users\harri\source\Programs\PackConverter\Source\Source.cpp(28,25): error C2059: syntax error: ','
