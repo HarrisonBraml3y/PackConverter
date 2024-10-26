@@ -20,12 +20,12 @@ int main(int argc, char* argv[]) {
 
 	NewDir = CreateDir(argv[1]);
 	std::cout << "NewDir: " << NewDir << std::endl;
-
+	PopulateDirMap(DirMap);
 	//Loop through main subdirectories
 	PopulateMap(BlocksSheetPath, NewMap);	//figure out how to do this efficiently, re-using the same map but identifying which sheet to pull data from
 
 	//IterateFolder(argv[1], argv[1], NewDir, ToRename, NewMap);	//NewDir needs to be corresponding directory of the original subdir
-	IterateFolder(argv[1], , NewDir, ToRename, NewMap);
+	IterateFolder(argv[1], argv[1], NewDir, ToRename, NewMap);
 
 
 

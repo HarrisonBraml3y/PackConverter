@@ -80,10 +80,11 @@ int PopulateMap(std::filesystem::path ReadFrom, std::map<std::string, std::strin
 
 //Fill map of updated directories e.g. assets/minecraft/mcpatcher -> assets/minecraft/optifine
 //loop through an old directory, 
-int PopulateDirMap(std::map<std::filesystem::path, std::filesystem::path>& DirMap) {
+std::map<std::filesystem::path, std::filesystem::path> DirMap;
+ std::map<std::filesystem::path, std::filesystem::path> PopulateDirMap(std::map<std::filesystem::path, std::filesystem::path>& DirMap) {
 	DirMap[""] = "assets\\minecraft\\lang";
 	DirMap["assets\\minecraft\\mcpatcher"] = "assets\\minecraft\\optifine";
-	DirMap["assets\\minecraft\\mcpatcher\\font"] = "assets\\minecraft\\optifine\\font";
+	DirMap["assets\\minecraft\\font"] = "assets\\minecraft\\textures\\font";
 	DirMap["assets\\minecraft\\mcpatcher\\lightmap"] = "assets\\minecraft\\optifine\\lightmap";
 	DirMap["assets\\minecraft\\mcpatcher\\mob"] = "assets\\minecraft\\optifine\\mob";
 	DirMap["assets\\minecraft\\mcpatcher\\sky"] = "assets\\minecraft\\optifine\\sky";
@@ -121,10 +122,8 @@ int PopulateDirMap(std::map<std::filesystem::path, std::filesystem::path>& DirMa
 	//DirMap["assets\minecraft\textures\models\armor"] = "assets\minecraft\textures\models\armor";
 	//DirMap["assets\minecraft\textures\painting"] = "assets\minecraft\textures\painting";
 	//DirMap["assets\minecraft\textures\particle"] = "assets\minecraft\textures\particle";
-
-
+	return DirMap;
 }
-
 
 
 int Search() {
@@ -200,6 +199,9 @@ void MoveFiles(std::filesystem::path Master, std::filesystem::path OldDir, std::
 		std::string Temp = Entry.path().string();
 		std::string FileName = Temp.substr(Temp.find_last_of("/\\") + 1);
 		std::cout << "Temp: " << FileName << std::endl;
+		if (FileName == "lightmap") {
+			system("pause");
+		}
 
 		RenameSingle(FileName, NamesMap);
 		std::cout << "OldPath:" << OldPath << std::endl;
@@ -207,13 +209,29 @@ void MoveFiles(std::filesystem::path Master, std::filesystem::path OldDir, std::
 		std::cout << "Master:" << Master << std::endl;
 		
 		std::filesystem::path RelativePath = std::filesystem::relative(OldPath.parent_path(), Master);	//if old and new relative path is the same, continue, if different then try and fix it with DirMap
+		if (DirMap.find(RelativePath) != DirMap.end()) {
+			std::cout << "Relative Path not found." << std::endl;
+			RelativePath = DirMap[RelativePath];
+			std::cout << "Relative Path renamed to " << DirMap[RelativePath] << std::endl;
+
+		}
+
+
 		std::cout << "NewDir:" << NewDir << std::endl;
 		std::cout << "RelativePath:" << RelativePath << std::endl;
 		std::cout << "FileName:" << FileName << std::endl;
 
 		NewPath = NewDir / RelativePath / FileName;
 		Names.push_back(Entry.path().filename().string());
-
+		if (FileName == "lightmap") {
+			try {
+				std::filesystem::rename(OldPath, NewPath);
+			}
+			catch (const std::filesystem::filesystem_error& e) {
+				std::cerr << "Error renaming: " << e.what() << '\n';
+				std::cerr << "OldPath: " << OldPath << "\nNewPath: " << NewPath << std::endl;
+			}
+		}
 		std::cout << "OldPath: " << OldPath << std::endl;
 		std::cout << "NewPath: " << NewPath << std::endl;
 		std::filesystem::rename(OldPath, NewPath);
@@ -277,6 +295,11 @@ std::filesystem::path CreateDir(std::string OldDir) {
 	std::string minecraftDir = "minecraft";
 	std::vector<std::string> minecraftSubDirs = { "textures", "texts", "lang", "optifine" };
 	std::vector<std::string> texturesSubDirs = { "block", "font", "gui", "item", "misc", "models", "particle", "entity", "environment", "map", "mob_effects", "painting" };
+	std::vector<std::string> optifineSubDirs = { "font", "lightmap", "mob", "sky" };
+	std::vector<std::string> entitySubDirs = { "cat", "chest", "cow", "creeper", "endercrystal", "enderdragon", "enderman", "ghast", "horse", "pig", "sheep", "skeleton", "slime", "spider", "villager", "wither", "wolf", "zombie"};
+	std::vector<std::string> mobSubDirs = { "cat", "cow", "creeper", "enderman", "ghast", "pig", "skeleton", "slime", "spider", "wolf", "zombie" };
+	std::vector<std::string> guiSubDirs = { "achievement", "container", "title"};
+
 	
 	if (!std::filesystem::exists(NewDir)) {	//NewDir hasn't been created yet, thus NewDir/assets cannot exist
 		std::filesystem::create_directory(NewDir);
@@ -314,21 +337,86 @@ std::filesystem::path CreateDir(std::string OldDir) {
 						std::filesystem::create_directory(SubDirs);
 						std::cout << "Created folder: " << SubDirs << std::endl;
 					}
+
 					else {
 						std::cout << "Folder already exists: " << SubDirs << std::endl;
 					}
+
+					if (i == "entity") {
+						for (auto i : entitySubDirs) {
+							std::filesystem::path SubDirs = NewFolderPath / "entity" / i;
+							if (!std::filesystem::exists(SubDirs)) {
+								std::filesystem::create_directory(SubDirs);
+								std::cout << "Created folder: " << SubDirs << std::endl;
+							}
+							else {
+								std::cout << "Folder already exists: " << SubDirs << std::endl;
+							}
+						}
+					}
+					if (i == "gui") {
+						for (auto i : guiSubDirs) {
+							std::filesystem::path SubDirs = NewFolderPath / "gui" / i;
+							if (!std::filesystem::exists(SubDirs)) {
+								std::filesystem::create_directory(SubDirs);
+								std::cout << "Created folder: " << SubDirs << std::endl;
+							}
+							else {
+								std::cout << "Folder already exists: " << SubDirs << std::endl;
+							}
+						}
+					}
+					if (i == "models") {
+						if (!std::filesystem::exists("models\\armor")) {
+							std::filesystem::create_directory(NewFolderPath / "models" / "armor");
+							std::cout << "Created folder: " << "models\\armor" << std::endl;
+						}
+						else {
+							std::cout << "Folder already exists: " << "models\\armor" << std::endl;
+						}
+					}
 				}
 			}
+			if (i == "optifine") {
+				for (auto i : optifineSubDirs) {
+					std::filesystem::path SubDirs = NewFolderPath / i;
+					if (!std::filesystem::exists(SubDirs)) {
+						std::filesystem::create_directory(SubDirs);
+						std::cout << "Created folder: " << SubDirs << std::endl;
+					}
+					else {
+						std::cout << "Folder already exists: " << SubDirs << std::endl;
+					}
+					if (i == "mob") {
+						for (auto i : mobSubDirs) {  
+							std::filesystem::path SubDirs = NewFolderPath / "mob" / i;
+							if (!std::filesystem::exists(SubDirs)) {
+								std::filesystem::create_directory(SubDirs);
+								std::cout << "Created folder: " << SubDirs << std::endl;
+							}
+							else {
+								std::cout << "Folder already exists: " << SubDirs << std::endl;
+							}
+							if (i == "sky") {
+								if (!std::filesystem::exists(NewFolderPath / "sky" / "world0")) {
+									std::filesystem::create_directory(NewFolderPath / "sky" / "world0");
+									std::cout << "Created folder: " << NewFolderPath / "sky" / "world0" << std::endl;
+								}
+								else {
+									std::cout << "Folder already exists: " << NewFolderPath / "sky" / "world0" << std::endl;
+								}
+							}
+						}
+					}
+				}
 
+			}
+			
 		}
 		else {
 			std::cout << "Folder already exists: "  << NewFolderPath << std::endl;
 		}
 	}
-
-
-
-
 	return NewDir;
 }
 
