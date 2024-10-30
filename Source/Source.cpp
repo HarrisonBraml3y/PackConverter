@@ -9,7 +9,7 @@
 int main(int argc, char* argv[]) {	
 	std::map<std::string, std::string> BlocksMap;
 	std::map<std::string, std::string> ItemsMap;
-	std::map<std::string, std::string> NewMap;
+	std::map<std::string, std::string> OldNew;
 
 	std::filesystem::path BlocksSheetPath = "C:\\Users\\harri\\Desktop\\BlocksSheet.csv";
 	std::filesystem::path ItemsSheetPath = "C:\\Users\\harri\\Desktop\\ItemsSheet.csv";
@@ -22,10 +22,10 @@ int main(int argc, char* argv[]) {
 	std::cout << "NewDir: " << NewDir << std::endl;
 	PopulateDirMap(DirMap);
 	//Loop through main subdirectories
-	PopulateMap(BlocksSheetPath, NewMap);	//figure out how to do this efficiently, re-using the same map but identifying which sheet to pull data from
+	PopulateMap(BlocksSheetPath, OldNew);	//figure out how to do this efficiently, re-using the same map but identifying which sheet to pull data from
 
 	//IterateFolder(argv[1], argv[1], NewDir, ToRename, NewMap);	//NewDir needs to be corresponding directory of the original subdir
-	IterateFolder(argv[1], argv[1], NewDir, ToRename, NewMap);
+	IterateFolder(argv[1], argv[1], NewDir, ToRename, OldNew);
 
 
 
@@ -48,6 +48,6 @@ int main(int argc, char* argv[]) {
 	//MoveFiles("C:\\Users\\harri\\Desktop\\Eum x Faith Mashup\\assets\\minecraft\\textures\\blocks", "C:\\Users\\harri\\Desktop\\TestPackNEW\\assets\\minecraft\\textures\\block", ToRename, BlocksMap);
 	//FetchNames("C:\\Users\\harri\\Desktop\\Eum x Faith Mashup\\assets\\minecraft\\textures\\blocks", ToRename);
 	//Rename(ToRename, BlocksMap);
-	
+	std::cout << "Copmlete, your updated texture pack can be found at " << NewDir << std::endl;
 	return 0;
 }

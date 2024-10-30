@@ -84,12 +84,26 @@ std::map<std::filesystem::path, std::filesystem::path> DirMap;
  std::map<std::filesystem::path, std::filesystem::path> PopulateDirMap(std::map<std::filesystem::path, std::filesystem::path>& DirMap) {
 	DirMap[""] = "assets\\minecraft\\lang";
 	DirMap["assets\\minecraft\\mcpatcher"] = "assets\\minecraft\\optifine";
-	DirMap["assets\\minecraft\\font"] = "assets\\minecraft\\textures\\font";
+	DirMap["assets\\minecraft\\font"] = "assets\\minecraft\\optifine\\font";
+	DirMap["assets\\minecraft\\mcpatcher\\colormap"] = "assets\\minecraft\\optifine\\colormap";
+	DirMap["assets\\minecraft\\mcpatcher\\ctm"] = "assets\\minecraft\\optifine\\ctm";
+	DirMap["assets\\minecraft\\mcpatcher\\ctm\\glass"] = "assets\\minecraft\\optifine\\ctm\\glass";
 	DirMap["assets\\minecraft\\mcpatcher\\lightmap"] = "assets\\minecraft\\optifine\\lightmap";
 	DirMap["assets\\minecraft\\mcpatcher\\mob"] = "assets\\minecraft\\optifine\\mob";
+	DirMap["assets\\minecraft\\mcpatcher\\mob\\cow"] = "assets\\minecraft\\optifine\\mob\\cow";
+	DirMap["assets\\minecraft\\mcpatcher\\mob\\creeper"] = "assets\\minecraft\\optifine\\mob\\creeper";
+	DirMap["assets\\minecraft\\mcpatcher\\mob\\enderman"] = "assets\\minecraft\\optifine\\mob\\enderman";
+	DirMap["assets\\minecraft\\mcpatcher\\mob\\ghast"] = "assets\\minecraft\\optifine\\mob\\ghast";
+	DirMap["assets\\minecraft\\mcpatcher\\mob\\pig"] = "assets\\minecraft\\optifine\\mob\\pig";
+	DirMap["assets\\minecraft\\mcpatcher\\mob\\skeleton"] = "assets\\minecraft\\optifine\\mob\\skeleton";
+	DirMap["assets\\minecraft\\mcpatcher\\mob\\slime"] = "assets\\minecraft\\optifine\\mob\\slime";
+	DirMap["assets\\minecraft\\mcpatcher\\mob\\spider"] = "assets\\minecraft\\optifine\\mob\\spider";
+	DirMap["assets\\minecraft\\mcpatcher\\mob\\wolf"] = "assets\\minecraft\\optifine\\mob\\wolf";
+	DirMap["assets\\minecraft\\mcpatcher\\mob\\zombie"] = "assets\\minecraft\\optifine\\mob\\zombie";
 	DirMap["assets\\minecraft\\mcpatcher\\sky"] = "assets\\minecraft\\optifine\\sky";
-	DirMap["assets\\minecraft\\mcpatcher\\sky\\sky0"] = "assets\\minecraft\\optifine\\sky\\sky0";
+	DirMap["assets\\minecraft\\mcpatcher\\sky\\world0"] = "assets\\minecraft\\optifine\\sky\\world0";
 	DirMap[""] = "assets\\minecraft\\texts";
+	
 	//DirMap["assets\minecraft\textures\entity\cat"] = "assets\minecraft\textures\entity\cat";
 	//DirMap["assets\minecraft\textures\entity\chest"] = "assets\minecraft\textures\entity\chest";
 	//DirMap["assets\minecraft\textures\entity\cow"] = "assets\minecraft\textures\entity\cow";
@@ -115,6 +129,8 @@ std::map<std::filesystem::path, std::filesystem::path> DirMap;
 	//DirMap["assets\minecraft\textures\gui\container\creative_inventory"] = "assets\minecraft\textures\gui\container\creative_inventory";
 	DirMap["assets\\minecraft\\textures\\blocks"] = "assets\\minecraft\\textures\\block";
 	DirMap["assets\\minecraft\\textures\\items"] = "assets\\minecraft\\textures\\item";
+	DirMap["assets\\minecraft\\textures\\font"] = "assets\\minecraft\\textures\\font";
+
 	//DirMap["assets\minecraft\textures\map"] = "assets\minecraft\textures\map";
 	//DirMap["assets\minecraft\textures\misc"] = "assets\minecraft\textures\misc";
 	DirMap[""] = "assets\\minecraft\\textures\\mob_effect";
@@ -135,7 +151,11 @@ int Search() {
 //Store old path and store new path, in order to move the newly-named files to new dir, change old path to new path, which involves excluding the file name which has been changed, so that only the file path is left to be changed
 int Rename(std::vector<std::string>& ToRename, std::map<std::string, std::string> Names) {	//Put all to-be-renamed names in vector, match them with first value of Names map, 
 	std::cout << "Rename()" << std::endl;													//Afterwards, rename the full file path to the new file path
-	std::cout << "ToRename size: " << ToRename.size() << std::endl;
+	std::cout << "ToRename: " << ToRename.size() << std::endl;
+	for (auto i : ToRename) {
+		std::cout << i << std::endl;
+	}
+
 
 	for (int i = 0; i < ToRename.size(); i++) {
 		if (Names.find(ToRename[i]) == Names.end()) {
@@ -152,8 +172,8 @@ int Rename(std::vector<std::string>& ToRename, std::map<std::string, std::string
 //, after it has been renamed
 	return 0;
 }
-std::string RenameSingle(std::string& ToRename, std::map<std::string, std::string> Names) {	//Put all to-be-renamed names in vector, match them with first value of Names map, 
-	std::cout << "RenameSingle()" << std::endl;													//Afterwards, rename the full file path to the new file path
+std::string RenameFilename(std::string& ToRename, std::map<std::string, std::string> Names) {	//Put all to-be-renamed names in vector, match them with first value of Names map, 
+	std::cout << "RenameFilename()" << std::endl;													//Afterwards, rename the full file path to the new file path
 	std::cout << "ToRename size: " << ToRename.size() << std::endl;
 	std::cout << "Renaming " << ToRename << std::endl;
 
@@ -189,7 +209,6 @@ int FetchNames(std::string Path, std::vector<std::string>& Paths) {	//fetch all 
 
 //Doesn't account for files which may be in different directories post-update or renamed directories
 void MoveFiles(std::filesystem::path Master, std::filesystem::path OldDir, std::filesystem::path NewDir, std::vector<std::string>& Names, std::map<std::string, std::string> NamesMap) {	//call this function for each directory in the folder
-	std::cout << Master << std::endl;
 
 	std::filesystem::path OldPath;
 	std::filesystem::path NewPath;
@@ -198,24 +217,21 @@ void MoveFiles(std::filesystem::path Master, std::filesystem::path OldDir, std::
 		OldPath = Entry.path();
 		std::string Temp = Entry.path().string();
 		std::string FileName = Temp.substr(Temp.find_last_of("/\\") + 1);
-		std::cout << "Temp: " << FileName << std::endl;
-		if (FileName == "lightmap") {
-			system("pause");
-		}
+		std::cout << "Filename retrieved: " << FileName << std::endl;
 
-		RenameSingle(FileName, NamesMap);
-		std::cout << "OldPath:" << OldPath << std::endl;
-		std::cout << "OldPath parent:" << OldPath.parent_path() << std::endl;
-		std::cout << "Master:" << Master << std::endl;
-		
+
+		RenameFilename(FileName, NamesMap);
+		//std::cout << "OldPath:" << OldPath << std::endl;
+		//std::cout << "OldPath parent:" << OldPath.parent_path() << std::endl;
+		//std::cout << "Master:" << Master << std::endl;
+
 		std::filesystem::path RelativePath = std::filesystem::relative(OldPath.parent_path(), Master);	//if old and new relative path is the same, continue, if different then try and fix it with DirMap
 		if (DirMap.find(RelativePath) != DirMap.end()) {
-			std::cout << "Relative Path not found." << std::endl;
+			std::cout << "Relative path not required - path stayed the same." << std::endl;
 			RelativePath = DirMap[RelativePath];
 			std::cout << "Relative Path renamed to " << DirMap[RelativePath] << std::endl;
 
 		}
-
 
 		std::cout << "NewDir:" << NewDir << std::endl;
 		std::cout << "RelativePath:" << RelativePath << std::endl;
@@ -223,19 +239,16 @@ void MoveFiles(std::filesystem::path Master, std::filesystem::path OldDir, std::
 
 		NewPath = NewDir / RelativePath / FileName;
 		Names.push_back(Entry.path().filename().string());
-		if (FileName == "lightmap") {
-			try {
-				std::filesystem::rename(OldPath, NewPath);
-			}
-			catch (const std::filesystem::filesystem_error& e) {
-				std::cerr << "Error renaming: " << e.what() << '\n';
-				std::cerr << "OldPath: " << OldPath << "\nNewPath: " << NewPath << std::endl;
-			}
+
+		if (!std::filesystem::exists(NewPath)) {
+			std::cout << "OldPath: " << OldPath << std::endl;
+			std::cout << "NewPath: " << NewPath << std::endl;
+			std::filesystem::rename(OldPath, NewPath);  
+			std::cout << OldPath << " Changed to: " << NewPath << std::endl;
 		}
-		std::cout << "OldPath: " << OldPath << std::endl;
-		std::cout << "NewPath: " << NewPath << std::endl;
-		std::filesystem::rename(OldPath, NewPath);
-		std::cout << OldPath << " Changed to: " << NewPath << std::endl;
+		else {
+			std::cout << NewPath << " Already exists." << std::endl;
+		}
 	}
 	return;
 }
@@ -272,8 +285,16 @@ void MoveFiles(std::filesystem::path Master, std::filesystem::path OldDir, std::
 //}
 
 void IterateFolder(std::filesystem::path Master, std::filesystem::path Folder, std::filesystem::path NewDir, std::vector<std::string> Names, std::map<std::string, std::string> NamesMap) {
+	bool Temp = false;
+	if (Folder == "C:\\Users\\harri\\Desktop\\Eum x Faith MashupNEW\\assets\\minecraft\\textures\\gui\\container") {
+		Temp = true;
+	}
+
+
+
 	std::cout << Folder << std::endl;
-	for (auto& i : std::filesystem::directory_iterator(Folder)) {
+	for (auto& i : std::filesystem::directory_iterator(Folder)) {	
+		std::cout << i << std::endl;
 		if (!i.is_directory()) {
 			MoveFiles(Master, Folder, NewDir, Names, NamesMap);
 		}
@@ -295,7 +316,7 @@ std::filesystem::path CreateDir(std::string OldDir) {
 	std::string minecraftDir = "minecraft";
 	std::vector<std::string> minecraftSubDirs = { "textures", "texts", "lang", "optifine" };
 	std::vector<std::string> texturesSubDirs = { "block", "font", "gui", "item", "misc", "models", "particle", "entity", "environment", "map", "mob_effects", "painting" };
-	std::vector<std::string> optifineSubDirs = { "font", "lightmap", "mob", "sky" };
+	std::vector<std::string> optifineSubDirs = { "font", "lightmap", "ctm", "colormap", "mob", "sky" };
 	std::vector<std::string> entitySubDirs = { "cat", "chest", "cow", "creeper", "endercrystal", "enderdragon", "enderman", "ghast", "horse", "pig", "sheep", "skeleton", "slime", "spider", "villager", "wither", "wolf", "zombie"};
 	std::vector<std::string> mobSubDirs = { "cat", "cow", "creeper", "enderman", "ghast", "pig", "skeleton", "slime", "spider", "wolf", "zombie" };
 	std::vector<std::string> guiSubDirs = { "achievement", "container", "title"};
@@ -397,15 +418,24 @@ std::filesystem::path CreateDir(std::string OldDir) {
 							else {
 								std::cout << "Folder already exists: " << SubDirs << std::endl;
 							}
-							if (i == "sky") {
-								if (!std::filesystem::exists(NewFolderPath / "sky" / "world0")) {
-									std::filesystem::create_directory(NewFolderPath / "sky" / "world0");
-									std::cout << "Created folder: " << NewFolderPath / "sky" / "world0" << std::endl;
-								}
-								else {
-									std::cout << "Folder already exists: " << NewFolderPath / "sky" / "world0" << std::endl;
-								}
-							}
+						}
+					}
+					if (i == "sky") {
+						if (!std::filesystem::exists(NewFolderPath / "sky" / "world0")) {
+							std::filesystem::create_directory(NewFolderPath / "sky" / "world0");
+							std::cout << "Created folder: " << NewFolderPath / "sky" / "world0" << std::endl;
+						}
+						else {
+							std::cout << "Folder already exists: " << NewFolderPath / "sky" / "world0" << std::endl;
+						}
+					}
+					if (i == "ctm") {
+						if (!std::filesystem::exists(NewFolderPath / "ctm" / "glass")) {
+							std::filesystem::create_directory(NewFolderPath / "ctm" / "glass");
+							std::cout << "Created folder: " << NewFolderPath / "ctm" / "glass" << std::endl;
+						}
+						else {
+							std::cout << "Folder already exists: " << NewFolderPath / "ctm" / "glass" << std::endl;
 						}
 					}
 				}
