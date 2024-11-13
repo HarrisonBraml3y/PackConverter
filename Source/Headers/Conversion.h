@@ -174,7 +174,6 @@ int Rename(std::vector<std::string>& ToRename, std::map<std::string, std::string
 }
 std::string RenameFilename(std::string& ToRename, std::map<std::string, std::string> Names) {	//Put all to-be-renamed names in vector, match them with first value of Names map, 
 	std::cout << "RenameFilename()" << std::endl;													//Afterwards, rename the full file path to the new file path
-	std::cout << "ToRename size: " << ToRename.size() << std::endl;
 	std::cout << "Renaming " << ToRename << std::endl;
 
 		if (Names.find(ToRename) == Names.end()) {
@@ -217,7 +216,7 @@ void MoveFiles(std::filesystem::path Master, std::filesystem::path OldDir, std::
 		OldPath = Entry.path();
 		std::string Temp = Entry.path().string();
 		std::string FileName = Temp.substr(Temp.find_last_of("/\\") + 1);
-		std::cout << "Filename retrieved: " << FileName << std::endl;
+		std::cout << "Filename retrieved:" << FileName << std::endl;
 
 
 		RenameFilename(FileName, NamesMap);
@@ -233,16 +232,10 @@ void MoveFiles(std::filesystem::path Master, std::filesystem::path OldDir, std::
 
 		}
 
-		std::cout << "NewDir:" << NewDir << std::endl;
-		std::cout << "RelativePath:" << RelativePath << std::endl;
-		std::cout << "FileName:" << FileName << std::endl;
-
 		NewPath = NewDir / RelativePath / FileName;
 		Names.push_back(Entry.path().filename().string());
 
 		if (!std::filesystem::exists(NewPath)) {
-			std::cout << "OldPath: " << OldPath << std::endl;
-			std::cout << "NewPath: " << NewPath << std::endl;
 			std::filesystem::rename(OldPath, NewPath);  
 			std::cout << OldPath << " Changed to: " << NewPath << std::endl;
 		}
@@ -285,21 +278,15 @@ void MoveFiles(std::filesystem::path Master, std::filesystem::path OldDir, std::
 //}
 
 void IterateFolder(std::filesystem::path Master, std::filesystem::path Folder, std::filesystem::path NewDir, std::vector<std::string> Names, std::map<std::string, std::string> NamesMap) {
-	bool Temp = false;
-	if (Folder == "C:\\Users\\harri\\Desktop\\Eum x Faith MashupNEW\\assets\\minecraft\\textures\\gui\\container") {
-		Temp = true;
-	}
-
-
-
-	std::cout << Folder << std::endl;
+	
+	std::cout << "FOLDER:" << Folder << std::endl;
 	for (auto& i : std::filesystem::directory_iterator(Folder)) {	
-		std::cout << i << std::endl;
+		std::cout << "SubDir:" << i << std::endl;
+
 		if (!i.is_directory()) {
 			MoveFiles(Master, Folder, NewDir, Names, NamesMap);
 		}
 		else {
-			std::cout << i << std::endl;
 			//std::filesystem::path Entry = i;
 			//MoveFiles(Entry, NewDir, Names, NamesMap);
 			IterateFolder(Master, i, NewDir, Names, NamesMap);
@@ -377,10 +364,24 @@ std::filesystem::path CreateDir(std::string OldDir) {
 					}
 					if (i == "gui") {
 						for (auto i : guiSubDirs) {
+							std::cout << i << std::endl;
 							std::filesystem::path SubDirs = NewFolderPath / "gui" / i;
+							std::cout << NewFolderPath << std::endl;
 							if (!std::filesystem::exists(SubDirs)) {
 								std::filesystem::create_directory(SubDirs);
 								std::cout << "Created folder: " << SubDirs << std::endl;
+							}
+							if (i == "container") {
+								if (!std::filesystem::exists("conatainer\\creative_inventory")) {
+									std::filesystem::create_directory(SubDirs / "creative_inventory");
+									std::cout << "Created folder: " << SubDirs / "creative_inventory" << std::endl;
+								}
+							}
+							if (i == "title") {
+								if (!std::filesystem::exists("conatainer\\background")) {
+									std::filesystem::create_directory(SubDirs / "background");
+									std::cout << "Created folder: " << SubDirs / "background" << std::endl;
+								}
 							}
 							else {
 								std::cout << "Folder already exists: " << SubDirs << std::endl;
@@ -467,6 +468,22 @@ std::filesystem::path CreateDir(std::string OldDir) {
 
 
 //SpriteSheetSplitter
+
+
+void RewriteMeta(std::string FilePath) {
+	std::ofstream OutFile(FilePath);
+	OutFile
+		<< "{\n"
+		<< "  \"pack\": {\n"
+		<< "    \"pack_format\": 15,\n"
+		<< "    \"description\": \"By denqy\"\n"
+		<< "  },\n"
+		<< "  \"meta\": {\n"
+		<< "    \"game_version\": \"1.20\"\n"
+		<< "  }\n"
+		<< "}\n";
+	OutFile.close();
+}
 
 
 
