@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <string>
 #include <map>
-
+#include "Dependencies/opencv2/opencv.hpp"
 
 struct CurrentDir {
 	//hold current directory parameters such as path etc. 
@@ -294,6 +294,91 @@ void IterateFolder(std::filesystem::path Master, std::filesystem::path Folder, s
 	}
 }
 
+//Particle Splitter - Cuts each particle from the one .png in the old version & creates a new .png for each particle. 
+
+void CutSprite(std::string& ImagePath, std::string& Output) {
+	std::vector<std::string> Particles_Smoke = { "big_smoke_0.png", "big_smoke_1.png", "big_smoke_2.png", "big_smoke_3.png", "big_smoke_4.png", "big_smoke_5.png", "big_smoke_6.png", "big_smoke_7.png", "big_smoke_8.png" };
+	std::vector<std::string> Particles_Rain = { "splash_0.png", "splash_1.png", "splash_2.png", "splash_3.png", "splash_4.png", "splash_5.png", "splash_6.png", "splash_7.png" };
+	std::vector<std::string> Particles_Misc = { "bubble.png", "lava.png" };
+	std::vector<std::string> Particles_Misc2 = { "note.png", "glint.png", "enchanted_hit.png" };
+	std::vector<std::string> Particles_Misc3 = {"heart.png", "angry.png", }
+	std::vector<std::string> Particles_Effect = { "effect_0.png", "effect_1.png", "effect_2.png", "effect_3.png", "effect_4.png", "effect_5.png", "effect_6.png", "effect_7.png" };
+	std::vector<std::string> Particles_Spart = { "spark_0.png", "spark_1.png" , "spark_2.png" ,"spark_3.png" , "spark_4.png" , "spark_5.png" , "spark_6.png", "spark_7.png" };
+	std::vector<std::string> Particle_spell = { "spell_0.png", "spell_1.png", "spell_2.png", "spell_3.png", "spell_4.png", "spell_5.png", "spell_6.png", "spell_7.png" };
+
+	cv::Mat Image = cv::imread(ImagePath, cv::IMREAD_UNCHANGED);
+	cv::Mat ImageRGBA;
+	cv::imshow("Original", Image);
+
+	cv::cvtColor(Image, ImageRGBA, cv::COLOR_BGR2BGRA);
+	if (Image.empty()) {
+		std::cout << "Error opening Image" << std::endl;
+		return;
+	}
+	bool hasAlpha = (ImageRGBA.channels() == 4);
+	if (hasAlpha) {
+		std::cout << "Has Alpha\n";
+	}
+	else {
+		std::cout << "No Alpha\n";
+
+	}
+
+	//Greyscale the image
+	cv::Mat Grey;
+	cv::cvtColor(Image, Grey, cv::COLOR_BGR2GRAY);
+	cv::imshow("Greyscale", Grey);
+
+	//Intensified greyscale to black & white
+	cv::Mat Binary;
+	cv::threshold(Grey, Binary, 1, 255, cv::THRESH_BINARY);
+	cv::imshow("Binary", Binary);
+
+	cv::waitKey(0);
+
+	cv::Mat Labels, Stats, Centroids;
+	int NumComponents = cv::connectedComponentsWithStats(Binary, Labels, Stats, Centroids, 8, CV_32S);
+
+	for (int i = 0; i < NumComponents; i++) {
+		int x = Stats.at<int>(i, cv::CC_STAT_LEFT);
+		int y = Stats.at<int>(i, cv::CC_STAT_TOP);
+		int Width = Stats.at<int>(i, cv::CC_STAT_WIDTH);
+		int Height = Stats.at<int>(i, cv::CC_STAT_HEIGHT);
+
+		cv::Rect BoundingBox(x, y, Width, Height);
+		cv::Mat Particle = Image(BoundingBox);
+
+		cv::Mat SpriteMask = Binary(BoundingBox);
+
+		cv::Mat SpriteRGBA(Particle.rows, Particle.cols, CV_8UC4);
+		if (hasAlpha) {
+			Particle.copyTo(SpriteRGBA, SpriteMask);
+		}
+		else {
+			cv::cvtColor(Particle, SpriteRGBA, cv::COLOR_BGR2BGRA);
+			for (int row = 0; row < SpriteRGBA.rows; ++row) {               //rows & columns represent 
+				for (int col = 0; col < SpriteRGBA.cols; ++col) {
+					cv::Vec4b& pixel = SpriteRGBA.at<cv::Vec4b>(row, col);
+					if (SpriteMask.at<uchar>(row, col) == 0) {
+						pixel[3] = 0; // Set alpha to 0 for transparent pixels
+					}
+					else {
+						pixel[3] = 255; // Set alpha to 255 for visible pixels
+					}
+				}
+			}
+		}
+
+		cv::imshow("Transparent", SpriteRGBA);
+		cv::waitKey(0);
+
+		std::string OutputPath = Output + "\Particle" + std::to_string(i) + ".png";
+		cv::imwrite(OutputPath, Particle);
+	}
+
+	std::cout << "Cut & extracted " << NumComponents - 1 << " particles " << std::endl;
+	return;
+}
 
 
 std::filesystem::path CreateDir(std::string OldDir) {
@@ -467,7 +552,7 @@ std::filesystem::path CreateDir(std::string OldDir) {
 
 
 
-//SpriteSheetSplitter
+
 
 
 void RewriteMeta(std::string FilePath) {
