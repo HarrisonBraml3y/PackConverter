@@ -23,5 +23,8 @@
     <ClInclude Include="Source\Headers\Conversion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Dependencies\opencv2\opencv.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
