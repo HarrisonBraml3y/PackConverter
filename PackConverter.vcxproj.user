@@ -4,11 +4,11 @@
     <ShowAllFiles>true</ShowAllFiles>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>"C:\Users\harri\Desktop\Eum x Faith Mashup - Copy"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>"C:\Users\harri\Desktop\!    §3XethaFaith §4Revamp - Copy"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>"C:\Users\harri\Desktop\Eum x Faith Mashup - Copy"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>"C:\Users\harri\Desktop\!    §3XethaFaith §4Revamp - Copy"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>
