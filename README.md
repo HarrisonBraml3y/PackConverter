@@ -1,6 +1,6 @@
-Makes 1.8 textures packs compatible with 1.20
-Ensure the folder is unzipped. Make a copy if you want to keep the original version. 
-Some of the particles may be slightly scuffed, you will also need to name these manually once they've been converted. Follow the naming convention below.
+Makes 1.8 textures packs compatible with 1.20<br>
+Ensure the folder is unzipped. Make a copy if you want to keep the original version. <br>
+Some of the particles may be slightly scuffed, you will also need to name these manually once they've been converted. Follow the naming convention below.<br>
 big_smoke_0, big_smoke_1, big_smoke_2...<br>
 splash_0, splash_1, splash_2...<br>
 bubble, hook<br>
